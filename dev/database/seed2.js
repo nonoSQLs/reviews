@@ -6,13 +6,49 @@ const db = require('../../database/index');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const reviewsByLanguage = require('./sampleData.js');
+const csv = require('csv-parser');
+const fs = require('fs');
 
-const generateData = () => {
+
+function getCities() {
+  var cities = [];
+  return new Promise(resolve => {
+    fs.createReadStream('./files/worldcities.csv')
+    .pipe(csv())
+    .on('data', row => {
+      // console.log(row)
+      var obj = {}
+      obj["city"] = row.city;
+      // cities.push(row.city);
+      cities.push(obj);
+      // console.log(row.city);
+    })
+    .on('end', () => {
+      console.log(cities.length);
+      resolve(cities)
+    })
+  })
+}
+
+async function awaitCities() {
+  const result = await getCities();
+  console.log(result);
+  return result
+}
+
+// var test = getCities();
+// var test = awaitCities();
+// console.log(test);
+
+// const generateData = () => {
+async function generateData() {
+  // jp: test out the async getCities()
+  const cities = await getCities();
+  console.log(cities);
   db('reviews');
   fetch('https://randomuser.me/api/?results=5000')
     .then((response) => {
-      // console.log(response);
-      return response.json();
+      return response.json()
     })
     .then((fakeUsers) => {
       Reviews.remove((err) => {
@@ -22,12 +58,15 @@ const generateData = () => {
           console.log('Database dropped');
         }
       });
+      return fakeUsers
+    })
+    .then((fakeUsers) => {
+      
       const dummyData = [];
       const destinations = ['Phitsanulok', 'Bangkok', 'Phuket', 'Trang', 'Ayutthaya'];
       const languages = ['english', 'italian', 'spanish', 'french', 'russian'];
       const travelerTypes  = ['families', 'couples', 'solo', 'business', 'friends'];
       console.log(reviewsByLanguage);
-      // jp: 
       for (let j = 0; j < destinations.length; j++) {
         for (let i = 0; i < 100; i += 1) {
           const randomImages = [];
@@ -62,16 +101,21 @@ const generateData = () => {
           dummyData.push(dummyReview);
         }
       }
-
+      console.log('putting the data together...');
+      return dummyData
+    })
+    .then((dummyData) => {
+      console.log('uploading to db...');
       Reviews.create(dummyData, (err) => {
         if (err) {
           console.log('Err', err);
           mongoose.disconnect();
         } else {
-          console.log('Seeding complete');
+          console.log('...Seeding complete');
           mongoose.disconnect();
         }
       });
+
     })
     .catch((err) => console.log(err));
 };
