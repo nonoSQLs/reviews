@@ -9,82 +9,71 @@ const reviewsByLanguage = require('./sampleData.js');
 const csv = require('csv-parser');
 const fs = require('fs');
 
-
 function getCities() {
   var cities = [];
   return new Promise(resolve => {
     fs.createReadStream('./files/worldcities.csv')
     .pipe(csv())
     .on('data', row => {
-      // console.log(row)
       var obj = {}
       obj["city"] = row.city;
-      // cities.push(row.city);
+      obj["country"] = row.country;
       cities.push(obj);
-      // console.log(row.city);
     })
     .on('end', () => {
-      console.log(cities.length);
-      resolve(cities)
+      console.log('got cities...');
+      resolve(cities);
     })
   })
 }
 
-async function awaitCities() {
-  const result = await getCities();
-  console.log(result);
-  return result
-}
-
-// var test = getCities();
-// var test = awaitCities();
-// console.log(test);
-
-// const generateData = () => {
-async function generateData() {
-  // jp: test out the async getCities()
-  const cities = await getCities();
-  console.log(cities);
-  db('reviews');
-  fetch('https://randomuser.me/api/?results=5000')
+function fetchUsers() {
+  return new Promise(resolve => {
+    db('reviews');
+    fetch('https://randomuser.me/api/?results=5000')
     .then((response) => {
+      console.log('received data from randomuser');
       return response.json()
     })
     .then((fakeUsers) => {
-      Reviews.remove((err) => {
+      return Reviews.remove((err) => {
         if (err) {
           console.log(Err);
+          return null
         } else {
           console.log('Database dropped');
+          resolve(fakeUsers);
         }
       });
-      return fakeUsers
     })
-    .then((fakeUsers) => {
-      
-      const dummyData = [];
-      const destinations = ['Phitsanulok', 'Bangkok', 'Phuket', 'Trang', 'Ayutthaya'];
-      const languages = ['english', 'italian', 'spanish', 'french', 'russian'];
-      const travelerTypes  = ['families', 'couples', 'solo', 'business', 'friends'];
-      console.log(reviewsByLanguage);
-      for (let j = 0; j < destinations.length; j++) {
-        for (let i = 0; i < 100; i += 1) {
-          const randomImages = [];
+    .catch(err => resolve(err));
+  })
+}
+
+
+
+async function generateData() {
+  const destinations = ['Phitsanulok', 'Bangkok', 'Phuket', 'Trang', 'Ayutthaya'];
+  const languages = ['english', 'italian', 'spanish', 'french', 'russian'];
+  const travelerTypes  = ['families', 'couples', 'solo', 'business', 'friends'];
+  const fakeUsers = await fetchUsers();
+  const cities = await getCities();
+  const citiesLen = cities.length - 1;
+  
+  function getRandomData() {
+    const dummyData = [];
+    return new Promise(resolve => {
+      // for (let j = 0; j < destinations.length; j++) {
+        for (let i = 0; i < 100000; i++) {
+          let randomImages = [];
+          let lang = languages[Math.floor(Math.random() * 5)]
           for (let k = 0; k < Math.floor(Math.random() * 6); k++) {
             randomImages.push(`http://d20lp9tw1uk7y6.cloudfront.net/images/tripadvisor_thailand_${Math.floor(Math.random() * 100)}.jpg`)
           }
-          const randomTravelerTypes = [];
-          for (let type = 0; type < Math.floor(Math.random() * (6 - 1) + 1); type++) {
-            randomTravelerTypes.push(travelerTypes[type]);
-          }
-          let currentLanguage = reviewsByLanguage[languages[j]];
-          //google translate is limited to 3900 characters so my foreign language reviews
-          //are kind of small so i will add 2 random review bodys together to make a single
-          //random review body, i this change will showcase the review filtering better by preventing
-          //exact duplicate review bodies
+          let currentLanguage = reviewsByLanguage[lang];
           let fakeReviewBody = currentLanguage[Math.floor(Math.random() * currentLanguage.length)] + currentLanguage[Math.floor(Math.random() * currentLanguage.length)];
           dummyReview = {
-            userName: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+            // userName: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             profilePic: `${fakeUsers.results[Math.floor(Math.random() * 5000)].picture.thumbnail}`,
             created_at: Faker.date.past(),
             userHomeLocation: Faker.address.country(),
@@ -94,30 +83,48 @@ async function generateData() {
             reviewBody: fakeReviewBody,
             dateOfExperience: Faker.date.past(),
             helpfulVotes: Math.floor(Math.random() * (20 - 1) + 1),
-            destination: destinations[j],
-            language: languages[j],
-            travelerType: randomTravelerTypes,
+            destination: cities[Math.floor(Math.random() * citiesLen)]["city"],
+            language: lang,
+            // travelerType: randomTravelerTypes,
+            travelerType: travelerTypes[Math.floor(Math.random() * 5)]
           };
           dummyData.push(dummyReview);
         }
-      }
-      console.log('putting the data together...');
-      return dummyData
+      // }
+      resolve(dummyData);
     })
-    .then((dummyData) => {
-      console.log('uploading to db...');
-      Reviews.create(dummyData, (err) => {
-        if (err) {
-          console.log('Err', err);
-          mongoose.disconnect();
-        } else {
-          console.log('...Seeding complete');
-          mongoose.disconnect();
-        }
-      });
+  }
+  const limit = 1000000
+  const citiesLen = cities.length - 1;
+  let cityCount = 0;
+  let data = [];
+  for (var i = 0; i < limit; i++) {
+    // let's try to do 100,000 random values at a time and push them to 
+    // cityCount < citiesLen ? cityCount = cityCount + 1 : cityCount = 0;
+  }
 
-    })
-    .catch((err) => console.log(err));
+
+  // const dummyData2 = await getRandomData();
+  // console.log('dummyData2 length', dummyData2.length);
+  // console.log('sample: ', dummyData2[2003]);
+
+  // mongoose.disconnect();
+
+  // Reviews.create(dummyData2, (err) => {
+  //   if (err) {
+  //     console.log('Err', err);
+  //     mongoose.disconnect();
+  //   } else {
+  //     console.log('...Seeding complete');
+  //     mongoose.disconnect();
+  //   }
+  // });
+
 };
 
-generateData();
+// generateData();
+
+module.exports = {
+  fetchUsers,
+  // more functions as needed
+}

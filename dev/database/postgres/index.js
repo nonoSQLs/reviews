@@ -11,49 +11,92 @@ const client = new Client({
 
 client.connect()
 
-client.query('SELECT NOW()', (err, res) => {
+client.query(`DROP TABLE IF EXISTS pictures`, (err, res) => {
   console.log(err, res)
-  client.end()
 })
 
-// const pool = new Pool({
-//   user: 'javanp',
-//   host: 'localhost',
-//   database: 'mydatabase',
-//   password: 'biggles82',
-//   port: 5432,
-// })
+client.query(`DROP TABLE IF EXISTS reviews`, (err, res) => {
+  console.log(err, res)
+})
 
-// pool.query('SELECT NOW()', (err, res) => {
-//   console.log(err, res)
-//   pool.end()
-// })
+client.query(`DROP TABLE IF EXISTS destinations`, (err, res) => {
+  console.log(err, res)
+})
 
-// async function postG() {
-//   // const { Client } = require('pg')
-//   // const client = new Client()
-//   // await client.connect()
-//   // const res = await client.query('SELECT $1::text as message', ['Hello world!'])
-//   // console.log(res.rows[0].message) // Hello world!
-//   // await client.end()
+client.query(`DROP TABLE IF EXISTS users`, (err, res) => {
+  console.log(err, res)
+})
 
-// // pools will use environment variables
-// // for connection information
-//   const pool = new Pool()
-//   pool.query('SELECT NOW()', (err, res) => {
-//     console.log(err, res)
-//     pool.end()
-//   })
-//   // you can also use async/await
-//   const res = await pool.query('SELECT NOW()')
-//   await pool.end()
-//   // clients will also use environment variables
-//   // for connection information
-//   const client = new Client()
-//   await client.connect()
-//   const res2 = await client.query('SELECT NOW()')
-//   await client.end()
+async function destinations() {
+  await client.query(`CREATE TABLE destinations (
+  destination_id SMALLINT UNIQUE,
+  destination_name VARCHAR(20),
+  destination_country_name VARCHAR(20),
+  avg_rating NUMERIC(1,1),
+  PRIMARY KEY(destination_id)
+   )`, (err, res) => {
+  console.log(err, res);
+  })
+}
 
-// }
+async function users() {
+  await client.query(`CREATE TABLE users (
+    user_id VARCHAR(20) UNIQUE,
+    user_home_location VARCHAR(20),
+    user_profile_pic VARCHAR(100),
+    PRIMARY KEY(user_id)
+  )`, (err, res) => {
+    console.log(err, res);
+  })
+}
 
-// postG();
+async function reviews() {
+  await client.query(`CREATE TABLE reviews (
+  review_id INT UNIQUE,
+  destination_id SMALLINT,
+  user_id VARCHAR(20),
+  review_date_created TIMESTAMP,
+  date_experience_start DATE,
+  date_exeperience_end DATE,
+  review_helpful_votes INT,
+  review_traveler_type VARCHAR(10),
+  review_title VARCHAR(20),
+  reivew_body VARCHAR(5000),
+  review_rating BIT,
+  review_views INT,
+  PRIMARY KEY(review_id),
+  CONSTRAINT fk_user
+    FOREIGN KEY (user_id)
+      REFERENCES users(user_id),
+  CONSTRAINT fk_destination
+    FOREIGN KEY (destination_id)
+      REFERENCES destinations(destination_id)
+   )`, (err, res) => {
+  console.log(err, res);
+  })
+}
+
+async function pictures() {
+  await client.query(`CREATE TABLE pictures (
+  picture_id SMALLINT PRIMARY KEY,
+  review_id INT,
+  destination_id SMALLINT,
+  picture_url VARCHAR(30),
+  picture_alt_tag CHAR(20),
+  CONSTRAINT fk_review
+    FOREIGN KEY (review_id)
+      REFERENCES reviews(review_id),
+  CONSTRAINT fk_destination
+    FOREIGN KEY (destination_id)
+      REFERENCES destinations(destination_id)
+   )`, (err, res) => {
+  console.log(err, res);
+  client.end();
+  })
+}
+
+destinations();
+users();
+reviews();
+pictures();
+
