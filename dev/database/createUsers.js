@@ -25,7 +25,7 @@ const writeUsers = createCsvWriter({
     {id: 'country', title: 'user_home_location'},
     {id: 'profilePic', title: 'user_profile_pic'}    
   ]
-})
+});
 
 async function getUsers() {
   const users = await fetchUsers();

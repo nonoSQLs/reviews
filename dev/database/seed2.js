@@ -8,6 +8,7 @@ const fetch = require('node-fetch');
 const reviewsByLanguage = require('./sampleData.js');
 const csv = require('csv-parser');
 const fs = require('fs');
+const queries = require('./postgres/queries.js');
 
 function getCities() {
   var cities = [];
@@ -56,7 +57,7 @@ async function generateData() {
   const destinations = ['Phitsanulok', 'Bangkok', 'Phuket', 'Trang', 'Ayutthaya'];
   const languages = ['english', 'italian', 'spanish', 'french', 'russian'];
   const travelerTypes  = ['families', 'couples', 'solo', 'business', 'friends'];
-  const fakeUsers = await fetchUsers();
+  // const fakeUsers = await fetchUsers();
   const cities = await getCities();
   const citiesLen = cities.length - 1;
   
@@ -65,18 +66,18 @@ async function generateData() {
     return new Promise(resolve => {
       // for (let j = 0; j < destinations.length; j++) {
         for (let i = 0; i < 100000; i++) {
-          let randomImages = [];
+          // let randomImages = [];
           let lang = languages[Math.floor(Math.random() * 5)]
-          for (let k = 0; k < Math.floor(Math.random() * 6); k++) {
-            randomImages.push(`http://d20lp9tw1uk7y6.cloudfront.net/images/tripadvisor_thailand_${Math.floor(Math.random() * 100)}.jpg`)
-          }
+          // for (let k = 0; k < Math.floor(Math.random() * 6); k++) {
+          //   randomImages.push(`http://d20lp9tw1uk7y6.cloudfront.net/images/tripadvisor_thailand_${Math.floor(Math.random() * 100)}.jpg`)
+          // }
           let currentLanguage = reviewsByLanguage[lang];
           let fakeReviewBody = currentLanguage[Math.floor(Math.random() * currentLanguage.length)] + currentLanguage[Math.floor(Math.random() * currentLanguage.length)];
           dummyReview = {
             // userName: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
-            profilePic: `${fakeUsers.results[Math.floor(Math.random() * 5000)].picture.thumbnail}`,
+            // profilePic: `${fakeUsers.results[Math.floor(Math.random() * 5000)].picture.thumbnail}`,
             created_at: Faker.date.past(),
-            userHomeLocation: Faker.address.country(),
+            // userHomeLocation: Faker.address.country(),
             images: randomImages,
             starRating: Math.floor(Math.random() * (6 - 1) + 1),
             reviewTitle: Faker.lorem.words(),
@@ -94,14 +95,16 @@ async function generateData() {
       resolve(dummyData);
     })
   }
-  const limit = 1000000
-  const citiesLen = cities.length - 1;
-  let cityCount = 0;
-  let data = [];
-  for (var i = 0; i < limit; i++) {
-    // let's try to do 100,000 random values at a time and push them to 
-    // cityCount < citiesLen ? cityCount = cityCount + 1 : cityCount = 0;
-  }
+  let data = await getRandomData();
+  return data;
+  // const limit = 1000000
+  // const citiesLen = cities.length - 1;
+  // let cityCount = 0;
+  // let data = [];
+  // for (var i = 0; i < limit; i++) {
+  //   // let's try to do 100,000 random values at a time and push them to 
+  //   // cityCount < citiesLen ? cityCount = cityCount + 1 : cityCount = 0;
+  // }
 
 
   // const dummyData2 = await getRandomData();
@@ -125,6 +128,7 @@ async function generateData() {
 // generateData();
 
 module.exports = {
-  fetchUsers,
+  getDestinations: generateData, 
+  getCities: getCities,
   // more functions as needed
 }
