@@ -5,26 +5,26 @@ const client = new Client({
   user: 'javanp',
   host: 'localhost',
   database: 'mydatabase',
-  password: 'biggles82',
+  password: 'password',
   port: 5432,
 })
 
 client.connect()
 
 client.query(`DROP TABLE IF EXISTS pictures`, (err, res) => {
-  console.log(err, res)
+  err ? console.log(err) : console.log('pictures table dropped successfully');
 })
 
 client.query(`DROP TABLE IF EXISTS reviews`, (err, res) => {
-  console.log(err, res)
+  err ? console.log(err) : console.log('reviews table dropped successfully');
 })
 
 client.query(`DROP TABLE IF EXISTS destinations`, (err, res) => {
-  console.log(err, res)
+  err ? console.log(err) : console.log('destinations table dropped successfully');
 })
 
 client.query(`DROP TABLE IF EXISTS users`, (err, res) => {
-  console.log(err, res)
+  err ? console.log(err) : console.log('users table dropped successfully');
 })
 
 async function destinations() {
@@ -35,7 +35,7 @@ async function destinations() {
   avg_rating NUMERIC(1,1),
   PRIMARY KEY(destination_id)
    )`, (err, res) => {
-  console.log(err, res);
+    err ? console.log(err) : console.log('destinations table created successfully');
   })
 }
 
@@ -46,7 +46,7 @@ async function users() {
     user_profile_pic VARCHAR(100),
     PRIMARY KEY(user_id)
   )`, (err, res) => {
-    console.log(err, res);
+    err ? console.log(err) : console.log('users table created successfully');
   })
 }
 
@@ -72,7 +72,7 @@ async function reviews() {
     FOREIGN KEY (destination_id)
       REFERENCES destinations(destination_id)
    )`, (err, res) => {
-  console.log(err, res);
+    err ? console.log(err) : console.log('reviews table created successfully');
   })
 }
 
@@ -90,7 +90,7 @@ async function pictures() {
     FOREIGN KEY (destination_id)
       REFERENCES destinations(destination_id)
    )`, (err, res) => {
-  console.log(err, res);
+    err ? console.log(err) : console.log('pictures table created successfully');
   client.end();
   })
 }
