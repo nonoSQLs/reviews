@@ -11,18 +11,6 @@ let cities, dest;
 let countries = [];
 let counter = 1000000;
 
-
-// change to fit destinations
-const writeDests = createCsvWriter({
-  path: csvPath,
-  header: [
-    {id: 'destId', title: 'destination_id'},
-    {id: 'destName', title: 'destination_name'},
-    {id: 'destCountry', title: 'destination_country_name'},
-    {id: 'avgRating', title: 'avg_rating'}    
-  ]
-});
-
 function getCities() {
   var cities = [];
   return new Promise(resolve => {
@@ -42,28 +30,39 @@ function getCities() {
 }
 
 async function addDests(int) {
-  // so basically int will tell us what to start our count at
-    // if it's 0, we start at 1
-    // if it's 1, we start at 1 million
-  // it will also tell us what to name our csv file
-  let arr = []
+  // I moved this into this function should I could make the path dynamic to the argument passed in here
+  const writeDests = createCsvWriter({
+    path: csvPath + int + '.csv',
+    header: [
+      {id: 'destId', title: 'destination_id'},
+      {id: 'destName', title: 'destination_name'},
+      {id: 'destCountry', title: 'destination_country_name'}
+      // {id: 'avgRating', title: 'avg_rating'}    
+    ]
+  });
+
+  let arr = [];
   let start = int * counter;
   let cityCount = 0;
   let countryCount = 0;
-  let cityLen = cities.length;
-  let countryLen = countries.length;
+  let cityLen = cities.length - 1;
+  let countryLen = countries.length - 1;
 
   for (let i = 0; i < counter; i++) {
-    console.log(i);
+    // console.log(i);
     // console.log(cityCount, countryCount);
+    // console.log('cityCount', cities[cityCount]);
     let dest = {};
     dest["destId"] = start + i;
-    dest["destName"] = cities[cityCount];
+    dest["destName"] = cities[cityCount].city;
     dest["destCountry"] = countries[countryCount];
-    // i < cityLen ? i++ : i = 0;
+    arr.push(dest);
     cityCount < cityLen ? cityCount++ : cityCount = 0;
     countryCount < countryLen ? countryCount++ : countryCount = 0;
   }
+  writeDests.writeRecords(arr)
+    .catch(err => console.log('createDestinations writeDests error: ', err))
+  
   return
 }
 
