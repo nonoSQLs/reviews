@@ -29,11 +29,11 @@ client.query(`DROP TABLE IF EXISTS users`, (err, res) => {
 
 async function destinations() {
   await client.query(`CREATE TABLE destinations (
-  destination_id SMALLINT UNIQUE,
-  destination_name VARCHAR(20),
-  destination_country_name VARCHAR(20),
-  avg_rating NUMERIC(1,1),
-  PRIMARY KEY(destination_id)
+    destination_id INT UNIQUE,
+    destination_name VARCHAR(100),
+    destination_country_name VARCHAR(100),
+    avg_rating NUMERIC(1,1),
+    PRIMARY KEY(destination_id)
    )`, (err, res) => {
     err ? console.log(err) : console.log('destinations table created successfully');
   })
@@ -53,16 +53,16 @@ async function users() {
 async function reviews() {
   await client.query(`CREATE TABLE reviews (
   review_id INT UNIQUE,
-  destination_id SMALLINT,
+  destination_id INT,
   user_id VARCHAR(20),
   review_date_created VARCHAR(20),
   date_experience_start VARCHAR(20),
   date_exeperience_end VARCHAR(20),
   review_helpful_votes INT,
   review_traveler_type VARCHAR(10),
-  review_title VARCHAR(20),
+  review_title VARCHAR(100),
   reivew_body VARCHAR(5000),
-  review_rating BIT,
+  review_rating SMALLINT,
   review_views INT,
   review_language VARCHAR(30),
   PRIMARY KEY(review_id),
