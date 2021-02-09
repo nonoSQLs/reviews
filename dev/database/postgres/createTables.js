@@ -29,9 +29,9 @@ client.query(`DROP TABLE IF EXISTS users`, (err, res) => {
 
 async function destinations() {
   await client.query(`CREATE TABLE destinations (
-  destination_id INT UNIQUE,
-  destination_name VARCHAR(100),
-  destination_country_name VARCHAR(100),
+  destination_id SMALLINT UNIQUE,
+  destination_name VARCHAR(20),
+  destination_country_name VARCHAR(20),
   avg_rating NUMERIC(1,1),
   PRIMARY KEY(destination_id)
    )`, (err, res) => {
@@ -55,15 +55,16 @@ async function reviews() {
   review_id INT UNIQUE,
   destination_id SMALLINT,
   user_id VARCHAR(20),
-  review_date_created TIMESTAMP,
-  date_experience_start DATE,
-  date_exeperience_end DATE,
+  review_date_created VARCHAR(20),
+  date_experience_start VARCHAR(20),
+  date_exeperience_end VARCHAR(20),
   review_helpful_votes INT,
   review_traveler_type VARCHAR(10),
   review_title VARCHAR(20),
   reivew_body VARCHAR(5000),
   review_rating BIT,
   review_views INT,
+  review_language VARCHAR(30),
   PRIMARY KEY(review_id),
   CONSTRAINT fk_user
     FOREIGN KEY (user_id)
@@ -99,4 +100,3 @@ destinations();
 users();
 reviews();
 pictures();
-

@@ -8,10 +8,9 @@ const csvPath = `/home/javan/sdc/dest`;
 
 var cities = [];
 let countries = [];
-let counter = 1000000;
+let files = [];
 
 async function getCities() {
-  // var cities = [];
   return new Promise(resolve => {
     fs.createReadStream('./files/worldcities.csv')
     .pipe(csv())
@@ -23,28 +22,12 @@ async function getCities() {
     })
     .on('end', () => {
       console.log('got cities...');
-      // console.log('got cities...', cities);
       resolve(cities);
     })
   })
-  // await fs.createReadStream('./files/worldcities.csv')
-  // .pipe(csv())
-  // .on('data', row => {
-  //   var obj = {}
-  //   obj["city"] = row.city;
-  //   obj["country"] = row.country;
-  //   citiesArr.push(obj);
-  // })
-  // .on('end', () => {
-  //   console.log('got cities...');
-  //   // resolve(cities);
-  // })
-  // return citiesArr
 }
 
 async function getCountries() {
-  // console.log('getCountries, cities: ...', cities);
-  // let countriesArr = [];
   let countryObj = {}
   await cities.forEach((val) => {
     if (!countryObj[val.country]) {
@@ -54,22 +37,20 @@ async function getCountries() {
   for (var country in countryObj) {
     countries.push(country);
   }
-  console.log('in getCountries: ...', countries);
-  // return countriesArr
   return
-
 }
+
 async function addDestLoop() {
-  for(var j = 0; j < 2; j++) {
-    // call a function here and pass it i
+  for(var j = 0; j < 10; j++) {
     await addDests(j);
     console.log(`finished with ${j + 1} addDest`);
   }
 }
 
 async function addDests(int) {
-  // I moved this into this function should I could make the path dynamic to the argument passed in here
   var file = csvPath + int + '.csv';
+  files.push(file);
+  
   const writeDests = createCsvWriter({
     path: file,
     header: [
@@ -80,6 +61,7 @@ async function addDests(int) {
     ]
   });
 
+  let counter = 1000000;
   let arr = [];
   let start = int * counter;
   let cityCount = 0;
@@ -88,9 +70,6 @@ async function addDests(int) {
   let countryLen = countries.length - 1;
 
   for (let i = 0; i < counter; i++) {
-    // console.log(i);
-    // console.log(cityCount, countryCount);
-    // console.log('cityCount', cities[cityCount]);
     let dest = {};
     dest["destId"] = start + i;
     dest["destName"] = cities[cityCount].city;
@@ -99,57 +78,36 @@ async function addDests(int) {
     cityCount < cityLen ? cityCount++ : cityCount = 0;
     countryCount < countryLen ? countryCount++ : countryCount = 0;
   }
+
+  // here we want to add in four reviews for every destination
+    // write those reviews and then come back here and finish the following tasks so that we're not overlapping
+  // well actually let's try with one and see how that goes
+    // I don't know if it'll be faster to open up a csv file or to pass an array value around
+    // hmmm... actually, let's try opening up one of the files and creating our reviews from that
+
   await writeDests.writeRecords(arr)
     .catch(err => console.log('createDestinations writeRecords error: ', err))
     .then(() => console.log('createDestinations writeRecords success!'))
-    // .then(() => {
-    //   queries.insertDestsCSV(file)
-    //     .catch(err => console.log('getUsers insertUsersCSV error:', err))
-    //     .then(() => console.log(`uploading file ${1} to db successful...`))
-    // })
   await queries.insertDestsCSV(file)
     .catch(err => console.log('createDestinations insertUsersCSV error:', err))
     .then(() => console.log('createDestinations insertUsersCSV success!'))
   return
 }
 
-
-
 (async () => {
   await getCities()
-    .then(() => console.log('createDestinations.js awaiting getCities finished...'))
+    .then(() => console.log('createDestinations.js getCities finished...'))
     .catch(err => console.log('createDestinations.js err in await for getCities'))
   console.log('cities finished...');
-  // console.log(cities);
   await getCountries()
-    .then(() => console.log('createDestinations.js awaiting getCountries finished...'))
+    .then(() => console.log('createDestinations.js getCountries finished...'))
     .catch(err => console.log('createDestinations.js err in await for getCountries'))
   console.log('countries finished...');
-  console.log(countries);
-  // so we need to loop through a populate a million destinations at a time
-  // do a loop of 10
-  // but let's start it at 2
-  // await client.connect()
-  //   .then(() => console.log('client connected...'))
-  //   .catch(err => console.log('client connection error'))
-  // (async () => {
-  //   for(var j = 0; j < 2; j++) {
-  //     // call a function here and pass it i
-  //     addDests(j);
-  //     console.log(`finished with ${j + 1} addDest`);
-  //   }
-  // })()
   await addDestLoop()
     .then(() => {
-      console.log('addDests loop successful!');
-      // client.release()
-      //   .then(() => console.log('disconnection successful!'))
-      //   .catch(err => console.log('somethingwrong with disconnecting: ', err))
+      console.log('addDests loop successful!');      
     })
     .catch(err => console.log('addDests loop successful error: ', err))
-  // client.end()
-  //   .then(() => console.log('disconnection successful!'))
-  //   .catch(err => console.log('somethingwrong with disconnecting: ', err))
-  // client.end()
+  // perhaps initiate the call over to createReviews and send the filepaths that we just created ("files")
 })()
 

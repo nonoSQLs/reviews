@@ -1,6 +1,5 @@
 const pool = require('./connect.js');
 
-
 async function insertUsers() {
   await pool.connect();
   await pool.query(`INSERT INTO users
@@ -21,7 +20,7 @@ async function insertUsersCSV(path) {
     err ? console.log('insertUsersCSV error: ', err) : console.log('users successfully inserted into db');
     return
   });
-  // await pool.end();
+  await pool.end();
 }
 
 async function insertDestsCSV(path) {
@@ -43,29 +42,29 @@ async function insertDestsCSV(path) {
           console.log('insertUsersCSV error: ', err)
         })
     })
-    .catch(err => console.log('pool connection error'))
+    .catch(err => console.log('queries: insertDestsCSV, pool connection error'))
+}
 
-  // await pool.query(`
-  //   COPY destinations(destination_id, destination_name, destination_country_name)
-  //   FROM '${path}'
-  //   DELIMITER ','
-  //   CSV HEADER
-  // `, err => {
-  //   err ? console.log('insertUsersCSV error: ', err) : console.log('destinations successfully inserted into db');
-  //   // pool.end();
-  // });
-  // console.log('out of queries insertDestCSV...')
-  // return
-
-  // return pool
-  //   .query(`
-  //     COPY destinations(destination_id, destination_name, destination_country_name)
-  //     FROM '${path}'
-  //     DELIMITER ','
-  //     CSV HEADER`)
-  //   .then(() => console.log('destinations successfully inserted into db'))
-  //   .catch(err => console.log('insertUsersCSV error: ', err))
-  // console.log('out of queries insertDestCSV...')
+async function insertReviewsCSV(path) {
+  pool.connect()
+    .then(client => {
+      console.log('pool connected...');
+      return client
+        .query(`
+          COPY reviews(review_id, destination_id, user_id, review_date_created, date_experience_start, date_exeperience_end, review_helpful_votes, review_traveler_type, review_title, reivew_body, review_rating, review_views, review_language)
+          FROM '${path}'
+          DELIMITER ','
+          CSV HEADER`)
+        .then(() => {
+          client.release()
+          console.log('reviews successfully inserted into db')
+        })
+        .catch(err => {
+          client.release()
+          console.log('insertReviewsCSV error: ', err)
+        })
+    })
+    .catch(err => console.log('queries: insertReviewsCSV, pool connection error: ', err))
 }
 
 const getUsers = (cb) => {
@@ -80,7 +79,6 @@ const getUsers = (cb) => {
   })
   
 }
-
 // insertUsers();
 // insertUsersCSV();
 
@@ -88,4 +86,5 @@ module.exports = {
   insertUsersCSV: insertUsersCSV,
   findAll: getUsers,
   insertDestsCSV: insertDestsCSV,
+  insertReviewsCSV: insertReviewsCSV,
 };
