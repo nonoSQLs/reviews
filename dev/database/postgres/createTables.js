@@ -29,9 +29,9 @@ client.query(`DROP TABLE IF EXISTS users`, (err, res) => {
 
 async function destinations() {
   await client.query(`CREATE TABLE destinations (
-  destination_id SMALLINT UNIQUE,
-  destination_name VARCHAR(20),
-  destination_country_name VARCHAR(20),
+  destination_id INT UNIQUE,
+  destination_name VARCHAR(100),
+  destination_country_name VARCHAR(100),
   avg_rating NUMERIC(1,1),
   PRIMARY KEY(destination_id)
    )`, (err, res) => {
