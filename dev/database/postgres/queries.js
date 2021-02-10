@@ -115,8 +115,26 @@ const getUsers = (cb) => {
     } else {
       cb(null, data.rows)
     }
-  })
-  
+  })  
+}
+
+async function getReviews(res, destId) {
+  pool
+    .connect()
+    .then(client => {
+      return client
+        .query(`SELECT * FROM reviews WHERE destination_id = ${destId}`)
+        .then(data => {
+          console.log('query getReviews success! data: ', data)
+          client.release()
+          res.status(200).send(data.rows)
+        })
+        .catch(err => {
+          console.log('query getReviews ERROR : ', err)
+          client.release()
+          res.status(404).send(err)
+        })
+    })
 }
 // insertUsers();
 // insertUsersCSV();
@@ -126,5 +144,6 @@ module.exports = {
   findAll: getUsers,
   insertDestsCSV: insertDestsCSV,
   insertReviewsCSV: insertReviewsCSV,
-  insertPicturesCSV: insertPicturesCSV
+  insertPicturesCSV: insertPicturesCSV,
+  getReviews: getReviews,
 };

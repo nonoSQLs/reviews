@@ -5,26 +5,30 @@ const Reviews = require('../dev/database/postgres/queries.js');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  console.log('in routes get')
-  Reviews.findAll((err, data) => {
-    if (err) {
-      res.status(404).send(err);
-    } else {
-      res.status(200).send(data);
-    }
-  });
-});
+// router.get('/', (req, res) => {
+//   console.log('in routes get')
+//   Reviews.findAll((err, data) => {
+//     if (err) {
+//       res.status(404).send(err);
+//     } else {
+//       res.status(200).send(data);
+//     }
+//   });
+// });
+
+// router.get('/:location', (req, res) => {
+//   Reviews.findByDestination(req.params.location, (err, data) => {
+//     if (err) {
+//       res.send(err);
+//     } else {
+//       console.log(data);
+//       res.send(data);
+//     }
+//   });
+// });
 
 router.get('/:location', (req, res) => {
-  Reviews.findByDestination(req.params.location, (err, data) => {
-    if (err) {
-      res.send(err);
-    } else {
-      console.log(data);
-      res.send(data);
-    }
-  });
+  Reviews.getReviews(res, req.params.location)
 });
 
 router.post('/', (req, res) => {

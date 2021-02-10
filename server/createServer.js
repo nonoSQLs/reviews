@@ -1,7 +1,7 @@
 const express = require('express');
 const parser = require('body-parser');
 const routes = require('./reviewRoutes');
-const db = require('../database/index');
+// const db = require('../database/index');
 
 function createServer(dbName) {
   const app = express();
@@ -9,7 +9,7 @@ function createServer(dbName) {
   app.use(express.static('public'));
   app.use(parser());
   app.use('/api/reviews', routes);
-  db(dbName);
+  // db(dbName);
   return app;
 }
 
