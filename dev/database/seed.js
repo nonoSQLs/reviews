@@ -10,7 +10,10 @@ const reviewsByLanguage = require('./sampleData.js');
 const generateData = () => {
   db('reviews');
   fetch('https://randomuser.me/api/?results=5000')
-    .then((response) => response.json())
+    .then((response) => {
+      // console.log(response);
+      return response.json();
+    })
     .then((fakeUsers) => {
       Reviews.remove((err) => {
         if (err) {
@@ -24,6 +27,7 @@ const generateData = () => {
       const languages = ['english', 'italian', 'spanish', 'french', 'russian'];
       const travelerTypes  = ['families', 'couples', 'solo', 'business', 'friends'];
       console.log(reviewsByLanguage);
+      // jp: 
       for (let j = 0; j < destinations.length; j++) {
         for (let i = 0; i < 100; i += 1) {
           const randomImages = [];

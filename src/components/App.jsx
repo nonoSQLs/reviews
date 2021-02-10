@@ -87,6 +87,7 @@ class App extends React.Component {
         this.setState({ reviews: res.data });
         let myReview = this.state.reviews.filter(review => review.reviewBody === 'Hello world');
         console.log('my review', myReview);
+        console.log(res.data);
         this.populateRatingsAndPages();
       })
       .catch((err) => console.log(err));
