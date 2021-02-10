@@ -51,9 +51,6 @@ async function addReviews(int) {
   let reviews = [];  
   let start = int * count;
 
-  // if (k != 0) {
-  //   k += 1;
-  // }
   console.log('starting dest_id: ', start);
   console.log('review_id: ', k);
   if (start > 9999999) {
