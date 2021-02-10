@@ -79,11 +79,11 @@ async function reviews() {
 
 async function pictures() {
   await client.query(`CREATE TABLE pictures (
-  picture_id SMALLINT PRIMARY KEY,
+  picture_id INT PRIMARY KEY,
   review_id INT,
-  destination_id SMALLINT,
-  picture_url VARCHAR(30),
-  picture_alt_tag CHAR(20),
+  destination_id INT,
+  picture_url VARCHAR(100),
+  picture_alt_tag CHAR(50),
   CONSTRAINT fk_review
     FOREIGN KEY (review_id)
       REFERENCES reviews(review_id),

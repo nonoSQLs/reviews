@@ -1,4 +1,6 @@
 const pool = require('./connect.js');
+const fs = require('fs');
+
 
 async function insertUsers() {
   await pool.connect();
@@ -36,6 +38,11 @@ async function insertDestsCSV(path) {
         .then(() => {
           client.release()
           console.log('destinations successfully inserted into db')
+          fs.unlink(path, err => {
+            if (err) {
+              console.log('fs.unlink error for file' + path, err) 
+            }
+          })
         })
         .catch(err => {
           client.release()
@@ -43,6 +50,33 @@ async function insertDestsCSV(path) {
         })
     })
     .catch(err => console.log('queries: insertDestsCSV, pool connection error'))
+}
+
+async function insertPicturesCSV(path) {
+  pool.connect()
+    .then(client => {
+      console.log('pool connected...');
+      return client
+        .query(`
+          COPY pictures(picture_id, review_id, destination_id, picture_url, picture_alt_tag)
+          FROM '${path}'
+          DELIMITER ','
+          CSV HEADER`)
+        .then(() => {
+          client.release()
+          console.log('pictures successfully inserted into db')
+          fs.unlink(path, err => {
+            if (err) {
+              console.log('fs.unlink error for file' + path, err) 
+            }
+          })
+        })
+        .catch(err => {
+          client.release()
+          console.log('insertPicturesCSV error: ', err)
+        })
+    })
+    .catch(err => console.log('queries: insertPicturesCSV, pool connection error'))
 }
 
 async function insertReviewsCSV(path) {
@@ -58,6 +92,11 @@ async function insertReviewsCSV(path) {
         .then(() => {
           client.release()
           console.log('reviews successfully inserted into db')
+          // fs.unlink(path, err => {
+          //   if (err) {
+          //     console.log('fs.unlink error for file' + path, err) 
+          //   }
+          // })
         })
         .catch(err => {
           client.release()
@@ -87,4 +126,5 @@ module.exports = {
   findAll: getUsers,
   insertDestsCSV: insertDestsCSV,
   insertReviewsCSV: insertReviewsCSV,
+  insertPicturesCSV: insertPicturesCSV
 };

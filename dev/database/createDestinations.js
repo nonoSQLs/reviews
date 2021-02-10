@@ -79,18 +79,14 @@ async function addDests(int) {
     countryCount < countryLen ? countryCount++ : countryCount = 0;
   }
 
-  // here we want to add in four reviews for every destination
-    // write those reviews and then come back here and finish the following tasks so that we're not overlapping
-  // well actually let's try with one and see how that goes
-    // I don't know if it'll be faster to open up a csv file or to pass an array value around
-    // hmmm... actually, let's try opening up one of the files and creating our reviews from that
-
   await writeDests.writeRecords(arr)
     .catch(err => console.log('createDestinations writeRecords error: ', err))
     .then(() => console.log('createDestinations writeRecords success!'))
   await queries.insertDestsCSV(file)
     .catch(err => console.log('createDestinations insertUsersCSV error:', err))
-    .then(() => console.log('createDestinations insertUsersCSV success!'))
+    .then(() => {
+      console.log('createDestinations insertUsersCSV success!')
+    })
   return
 }
 
