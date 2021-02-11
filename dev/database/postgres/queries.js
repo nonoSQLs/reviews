@@ -14,7 +14,7 @@ async function insertUsers() {
 async function insertUsersCSV(path) {
   // await pool.connect();
   await pool.query(`
-    COPY users(user_id, user_home_location, user_profile_pic)
+    COPY users(user_id, user_name, user_home_location, user_profile_pic)
     FROM '${path}'
     DELIMITER ','
     CSV HEADER
@@ -118,14 +118,64 @@ const getUsers = (cb) => {
   })  
 }
 
+// async function getReviews(res, destId) {
+//   pool
+//     .connect()
+//     .then(client => {
+//       return client
+//         .query(`SELECT * FROM reviews WHERE destination_id = ${destId}`)
+//         .then(data => {
+//           console.log('query getReviews success! data: ', data)
+//           client.release()
+//           res.status(200).send(data.rows)
+//         })
+//         .catch(err => {
+//           console.log('query getReviews ERROR : ', err)
+//           client.release()
+//           res.status(404).send(err)
+//         })
+//     })
+// }
+
 async function getReviews(res, destId) {
+  let queryText = `SELECT 
+  destinations.destination_name,
+  reviews.review_date_created,
+  reviews.date_exeperience_end,
+  reviews.review_helpful_votes,
+  reviews.review_traveler_type,
+  reviews.review_title,
+  reviews.reivew_body,
+  reviews.review_rating,
+  reviews.review_language,
+  users.user_name,
+  users.user_home_location,
+  users.user_profile_pic,
+  pictures.picture_url
+ 
+  FROM reviews
+ 
+  INNER JOIN pictures
+ 
+  ON reviews.review_id = pictures.review_id
+
+  INNER JOIN users
+
+  ON reviews.user_id = users.user_id
+
+  INNER JOIN destinations
+
+  ON reviews.destination_id = destinations.destination_id
+ 
+  WHERE reviews.destination_id = ${destId}`;
+  
   pool
     .connect()
     .then(client => {
       return client
-        .query(`SELECT * FROM reviews WHERE destination_id = ${destId}`)
+        .query(queryText)
         .then(data => {
-          console.log('query getReviews success! data: ', data)
+          // console.log('query getReviews success! data: ')
           client.release()
           res.status(200).send(data.rows)
         })
@@ -136,8 +186,6 @@ async function getReviews(res, destId) {
         })
     })
 }
-// insertUsers();
-// insertUsersCSV();
 
 module.exports = {
   insertUsersCSV: insertUsersCSV,

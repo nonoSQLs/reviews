@@ -82,15 +82,34 @@ class App extends React.Component {
     // in the future this would get reviews by location
     // but that would require outside assistance from another service
     // to know which location to grab
-    axios.get('/api/reviews/')
+    console.log('in get data')
+    axios.get('/api/reviews/12500')
       .then((res) => {
-        this.setState({ reviews: res.data });
-        let myReview = this.state.reviews.filter(review => review.reviewBody === 'Hello world');
-        console.log('my review', myReview);
-        console.log(res.data);
+        // let myReview = this.state.reviews.filter(review => review.reviewBody === 'Hello world');
+        let reviews = res.data.map(val => {
+          let reviewObj = {};
+          reviewObj["userName"] = val.user_name;
+          reviewObj["profilePic"] = val.user_profile_pic;
+          reviewObj["created_at"] = val.review_date_created;
+          reviewObj["userHomeLocation"] = val.user_home_location;
+          reviewObj["images"] = [val.picture_url];
+          reviewObj["starRating"] = val.review_rating;
+          reviewObj["reviewTitle"] = val.review_title;
+          reviewObj["reviewBody"] = val.reivew_body;
+          reviewObj["dateOfExperience"] = val.date_exeperience_end;
+          reviewObj["helpfulVotes"] = val.review_helpful_votes;
+          reviewObj["destination"] = val.destination_name;
+          reviewObj["language"] = val.review_language;
+          reviewObj["travelerType"] = val.review_traveler_type;
+          return reviewObj;
+        })
+        this.setState({
+          reviews: reviews 
+        })
         this.populateRatingsAndPages();
+        console.log('axios get success: ', res.data);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log('axios get error: ', err));
   }
 
   getReviews(pageNumber) {

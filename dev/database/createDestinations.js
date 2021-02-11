@@ -12,7 +12,7 @@ let files = [];
 
 async function getCities() {
   return new Promise(resolve => {
-    fs.createReadStream('./files/worldcities.csv')
+    fs.createReadStream(__dirname + '/files/worldcities.csv')
     .pipe(csv())
     .on('data', row => {
       var obj = {}

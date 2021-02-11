@@ -42,6 +42,7 @@ async function destinations() {
 async function users() {
   await client.query(`CREATE TABLE users (
     user_id VARCHAR(20) UNIQUE,
+    user_name VARCHAR(40), 
     user_home_location VARCHAR(20),
     user_profile_pic VARCHAR(100),
     PRIMARY KEY(user_id)

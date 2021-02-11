@@ -1,3 +1,4 @@
+require('newrelic');
 const createServer = require('./createServer');
 
 const port = 3000;

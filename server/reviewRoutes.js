@@ -27,7 +27,13 @@ const router = express.Router();
 //   });
 // });
 
+router.get('/', (req,res) => {
+  console.log('in basic get request')
+  res.status(200).send('here\'s a cookie')
+})
+
 router.get('/:location', (req, res) => {
+  // console.log('get request...');
   Reviews.getReviews(res, req.params.location)
 });
 
